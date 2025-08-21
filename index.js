@@ -21,15 +21,24 @@ app.use(express.json());
 //     posterUrl: "https://example.com/new-poster1.jpg",
 //     trailerUrl: "https://example.com/mew-trailer1.mp4"
 // }
-// async function createMovie(newMovie){
-//   try{
-//     const movie=new Movie(newMovie);
-//     const saveMovie =await movie.save()
-//     return saveMovie;
-//   }catch(error){
-//     throw error
-// }
-// }
+async function createMovie(newMovie){
+  try{
+    const movie=new Movie(newMovie);
+    const saveMovie =await movie.save()
+    return saveMovie;
+  }catch(error){
+    throw error
+}
+}
+///LESSON BE: BE4.2_CW
+app.post("/movies",async (req,res)=>{
+  try{
+  const savedMovie = await createMovie(req.body);
+  res.status(201).json({message:"Successfully Added",movie:savedMovie})
+  }catch(error){
+    res.status(500).json({error:"Failed"})
+  }
+})
 async function readMovie(){
   try{
   const movie=await Movie.find();
