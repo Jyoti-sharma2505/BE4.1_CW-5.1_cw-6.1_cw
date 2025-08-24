@@ -1,11 +1,20 @@
-const { prototype } = require("events");
+
 const {initilizatiom}=require("./db/db.connect");
 const Movie = require("./model/movie.model")
 initilizatiom();
 const express = require("express");
-const { error } = require("console");
+
 const app=express();
 app.use(express.json());
+
+const cors = require("cors");
+const corsOptions = {
+  origin: "*",
+  credentials: true,
+  optionSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 // const newMovie = {
 //     title: "New Movie",
@@ -64,12 +73,26 @@ app.get("/movies",async (req,res)=>{
 async function updateTheRating(movieId,updaterating){
   try{
   const update=await Movie.findByIdAndUpdate(movieId,updaterating,{new:true});
-  console.log(update);
+  return update;
   }catch(error){
     throw error;
   }
 }
 // updateTheRating("689d7e12afedc9d9c29422f5",{rating:8.5})
+
+//BE4.3_HW2
+app.post("/movies/:movieId",async(req,res)=>{
+  try{
+  const updated = await updateTheRating(req.params.movieId,req.body);
+  if(updated){
+    res.status(200).json({message:"Updated Successfully",updated:updated})
+  }else{
+    res.status(404).json({error:"Not found"})
+  }
+  }catch(error){
+    res.status(500).json({error:"Failed"})
+  }
+})
 async function updateByTitle(movieTitle,updateYear){
     try{
     const update = await Movie.findOneAndUpdate({title:movieTitle},updateYear,{new:true});
@@ -83,12 +106,25 @@ async function updateByTitle(movieTitle,updateYear){
 async function deleteById(movieId){
     try{
      const deleteId =await Movie.findByIdAndDelete(movieId ,{new:true});
-     console.log(deleteId)
+     return deleteId
     }catch(error){
         console.log("Nor catch find",error);
     }
 }
 // deleteById("689f17dccfed2020562c97c7");
+
+//BE4.3_CW
+app.delete("/movies/:moviesId",async(req,res)=>{
+  try{
+  const deletehotel=await deleteById(req.params.moviesId);
+  if(deletehotel){
+ res.status(200).json({message:"Deleted Successfully"})
+  }
+ 
+  }catch(error){
+    res.status(500).json({error:"Failed"})
+  }
+})
 //2:
 async function deleteByTitle(movieTitle){
     try{
@@ -167,7 +203,7 @@ app.get("/movies/genres/:genreName",async(req,res)=>{
     }
 })
 
-const PORT=3000;
+const PORT=process.env.PORT;
 app.listen(PORT,()=>{
     console.log("Server running in port",PORT)
 })
